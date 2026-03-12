@@ -1,0 +1,90 @@
+﻿@page "/universities/edit"
+@using Microsoft.EntityFrameworkCore
+@using StudentApplicationManagementSystem.Models
+@inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>University</h2>
+<hr />
+@if (University is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="University" OnValidSubmit="UpdateUniversity" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="University.UniversityId" value="@University.UniversityId" />
+                <div class="mb-3">
+                <span class="text-danger">*</span>
+                    <label for="universityname" class="form-label">UniversityName:</label>
+                    <InputText id="universityname" @bind-Value="University.UniversityName" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => University.UniversityName" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/universities">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int UniversityId { get; set; }
+
+    [SupplyParameterFromForm]
+    private University? University { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        University ??= await context.University.FirstOrDefaultAsync(m => m.UniversityId == UniversityId);
+
+        if (University is null)
+        {
+            NavigationManager.NotFound();
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateUniversity()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(University!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!UniversityExists(University!.UniversityId))
+            {
+                NavigationManager.NotFound();
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/universities");
+    }
+
+    private bool UniversityExists(int universityid)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.University.Any(e => e.UniversityId == universityid);
+    }
+}

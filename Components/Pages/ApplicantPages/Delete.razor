@@ -1,0 +1,48 @@
+﻿@page "/applicants/delete"
+@using Microsoft.EntityFrameworkCore
+@using StudentApplicationManagementSystem.Models
+@inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Delete</PageTitle>
+
+<h2>Ви впевнені, що хочете видалити абітурієнта?</h2>
+<div>
+    <hr />
+    @if (applicant is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <EditForm method="post" Model="applicant" OnValidSubmit="DeleteApplicant" FormName="delete" Enhance>
+            <button type="submit" class="btn btn-danger" disabled="@(applicant is null)">Видалити</button> |
+            <a href="/applicants">Back to List</a>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private Applicant? applicant;
+
+    [SupplyParameterFromQuery]
+    private int ApplicantId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        applicant = await context.Applicant.FirstOrDefaultAsync(m => m.ApplicantId == ApplicantId);
+
+        if (applicant is null)
+        {
+            NavigationManager.NotFound();
+        }
+    }
+
+    private async Task DeleteApplicant()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Applicant.Remove(applicant!);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/applicants");
+    }
+}

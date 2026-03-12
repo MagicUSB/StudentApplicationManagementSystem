@@ -1,0 +1,56 @@
+﻿@page "/studentapplications/details"
+@using Microsoft.EntityFrameworkCore
+@using StudentApplicationManagementSystem.Models
+@inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>StudentApplication</h2>
+    <hr />
+    @if (studentapplication is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">StudentId</dt>
+            <dd class="col-sm-10">@studentapplication.StudentId</dd>
+            <dt class="col-sm-2">StudentApplicationScore</dt>
+            <dd class="col-sm-10">@studentapplication.StudentApplicationScore</dd>
+            <dt class="col-sm-2">StudentApplicationUniversityId</dt>
+            <dd class="col-sm-10">@studentapplication.StudentApplicationUniversityId</dd>
+            <dt class="col-sm-2">StudentApplicationStatusId</dt>
+            <dd class="col-sm-10">@studentapplication.StudentApplicationStatusId</dd>
+            <dt class="col-sm-2">StudentApplicationPriority</dt>
+            <dd class="col-sm-10">@studentapplication.StudentApplicationPriority</dd>
+            <dt class="col-sm-2">StudentApplicationSpecialtyId</dt>
+            <dd class="col-sm-10">@studentapplication.StudentApplicationSpecialtyId</dd>
+        </dl>
+        <div>
+            <a href="@($"/studentapplications/edit?studentapplicationid={studentapplication.StudentApplicationId}")">Edit</a> |
+            <a href="@($"/studentapplications")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private StudentApplication? studentapplication;
+
+    [SupplyParameterFromQuery]
+    private int StudentApplicationId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        studentapplication = await context.StudentApplication.FirstOrDefaultAsync(m => m.StudentApplicationId == StudentApplicationId);
+
+        if (studentapplication is null)
+        {
+            NavigationManager.NotFound();
+        }
+    }
+}

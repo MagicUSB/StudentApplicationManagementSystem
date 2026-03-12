@@ -1,0 +1,114 @@
+﻿@page "/studentapplications/edit"
+@using Microsoft.EntityFrameworkCore
+@using StudentApplicationManagementSystem.Models
+@inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>StudentApplication</h2>
+<hr />
+@if (StudentApplication is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="StudentApplication" OnValidSubmit="UpdateStudentApplication" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="StudentApplication.StudentApplicationId" value="@StudentApplication.StudentApplicationId" />
+                <div class="mb-3">
+                    <label for="studentid" class="form-label">StudentId:</label>
+                    <InputNumber id="studentid" @bind-Value="StudentApplication.StudentId" class="form-control" />
+                    <ValidationMessage For="() => StudentApplication.StudentId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="studentapplicationscore" class="form-label">StudentApplicationScore:</label>
+                    <InputNumber id="studentapplicationscore" @bind-Value="StudentApplication.StudentApplicationScore" class="form-control" />
+                    <ValidationMessage For="() => StudentApplication.StudentApplicationScore" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="studentapplicationuniversityid" class="form-label">StudentApplicationUniversityId:</label>
+                    <InputNumber id="studentapplicationuniversityid" @bind-Value="StudentApplication.StudentApplicationUniversityId" class="form-control" />
+                    <ValidationMessage For="() => StudentApplication.StudentApplicationUniversityId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="studentapplicationstatusid" class="form-label">StudentApplicationStatusId:</label>
+                    <InputNumber id="studentapplicationstatusid" @bind-Value="StudentApplication.StudentApplicationStatusId" class="form-control" />
+                    <ValidationMessage For="() => StudentApplication.StudentApplicationStatusId" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="studentapplicationpriority" class="form-label">StudentApplicationPriority:</label>
+                    <InputNumber id="studentapplicationpriority" @bind-Value="StudentApplication.StudentApplicationPriority" class="form-control" />
+                    <ValidationMessage For="() => StudentApplication.StudentApplicationPriority" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="studentapplicationspecialtyid" class="form-label">StudentApplicationSpecialtyId:</label>
+                    <InputNumber id="studentapplicationspecialtyid" @bind-Value="StudentApplication.StudentApplicationSpecialtyId" class="form-control" />
+                    <ValidationMessage For="() => StudentApplication.StudentApplicationSpecialtyId" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/studentapplications">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int StudentApplicationId { get; set; }
+
+    [SupplyParameterFromForm]
+    private StudentApplication? StudentApplication { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        StudentApplication ??= await context.StudentApplication.FirstOrDefaultAsync(m => m.StudentApplicationId == StudentApplicationId);
+
+        if (StudentApplication is null)
+        {
+            NavigationManager.NotFound();
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateStudentApplication()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(StudentApplication!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!StudentApplicationExists(StudentApplication!.StudentApplicationId))
+            {
+                NavigationManager.NotFound();
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/studentapplications");
+    }
+
+    private bool StudentApplicationExists(int studentapplicationid)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.StudentApplication.Any(e => e.StudentApplicationId == studentapplicationid);
+    }
+}

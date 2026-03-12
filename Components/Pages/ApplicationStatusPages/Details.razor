@@ -1,0 +1,46 @@
+﻿@page "/applicationstatuses/details"
+@using Microsoft.EntityFrameworkCore
+@using StudentApplicationManagementSystem.Models
+@inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>ApplicationStatus</h2>
+    <hr />
+    @if (applicationstatus is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">ApplicationStatusName</dt>
+            <dd class="col-sm-10">@applicationstatus.ApplicationStatusName</dd>
+        </dl>
+        <div>
+            <a href="@($"/applicationstatuses/edit?applicationstatusid={applicationstatus.ApplicationStatusId}")">Edit</a> |
+            <a href="@($"/applicationstatuses")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private ApplicationStatus? applicationstatus;
+
+    [SupplyParameterFromQuery]
+    private int ApplicationStatusId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        applicationstatus = await context.ApplicationStatus.FirstOrDefaultAsync(m => m.ApplicationStatusId == ApplicationStatusId);
+
+        if (applicationstatus is null)
+        {
+            NavigationManager.NotFound();
+        }
+    }
+}

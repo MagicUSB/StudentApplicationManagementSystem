@@ -1,0 +1,106 @@
+﻿@page "/applicants/edit"
+@using Microsoft.EntityFrameworkCore
+@using StudentApplicationManagementSystem.Models
+@inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Редагування</h1>
+
+<hr />
+@if (Applicant is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Applicant" OnValidSubmit="UpdateApplicant" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="Applicant.ApplicantId" value="@Applicant.ApplicantId" />
+                <div class="mb-3">
+                <span class="text-danger">*</span>
+                    <label for="applicantsurname" class="form-label">Прізвище:</label>
+                    <InputText id="applicantsurname" @bind-Value="Applicant.ApplicantSurname" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Applicant.ApplicantSurname" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                <span class="text-danger">*</span>
+                    <label for="applicantname" class="form-label">Ім'я:</label>
+                    <InputText id="applicantname" @bind-Value="Applicant.ApplicantName" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Applicant.ApplicantName" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="applicantpatronymic" class="form-label">По батькові:</label>
+                    <InputText id="applicantpatronymic" @bind-Value="Applicant.ApplicantPatronymic" class="form-control" />
+                    <ValidationMessage For="() => Applicant.ApplicantPatronymic" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                <span class="text-danger">*</span>
+                    <label for="applicanttelephone" class="form-label">Номер телефону:</label>
+                    <InputText id="applicanttelephone" @bind-Value="Applicant.ApplicantTelephone" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => Applicant.ApplicantTelephone" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Зберегти</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/applicants">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int ApplicantId { get; set; }
+
+    [SupplyParameterFromForm]
+    private Applicant? Applicant { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        Applicant ??= await context.Applicant.FirstOrDefaultAsync(m => m.ApplicantId == ApplicantId);
+
+        if (Applicant is null)
+        {
+            NavigationManager.NotFound();
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateApplicant()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(Applicant!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!ApplicantExists(Applicant!.ApplicantId))
+            {
+                NavigationManager.NotFound();
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/applicants");
+    }
+
+    private bool ApplicantExists(int applicantid)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Applicant.Any(e => e.ApplicantId == applicantid);
+    }
+}

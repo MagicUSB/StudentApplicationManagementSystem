@@ -1,0 +1,90 @@
+﻿@page "/fundingtypes/edit"
+@using Microsoft.EntityFrameworkCore
+@using StudentApplicationManagementSystem.Models
+@inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>FundingType</h2>
+<hr />
+@if (FundingType is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="FundingType" OnValidSubmit="UpdateFundingType" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="FundingType.FundingTypeId" value="@FundingType.FundingTypeId" />
+                <div class="mb-3">
+                <span class="text-danger">*</span>
+                    <label for="fundingtypename" class="form-label">FundingTypeName:</label>
+                    <InputText id="fundingtypename" @bind-Value="FundingType.FundingTypeName" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => FundingType.FundingTypeName" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/fundingtypes">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int FundingTypeId { get; set; }
+
+    [SupplyParameterFromForm]
+    private FundingType? FundingType { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        FundingType ??= await context.FundingType.FirstOrDefaultAsync(m => m.FundingTypeId == FundingTypeId);
+
+        if (FundingType is null)
+        {
+            NavigationManager.NotFound();
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateFundingType()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(FundingType!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!FundingTypeExists(FundingType!.FundingTypeId))
+            {
+                NavigationManager.NotFound();
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/fundingtypes");
+    }
+
+    private bool FundingTypeExists(int fundingtypeid)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.FundingType.Any(e => e.FundingTypeId == fundingtypeid);
+    }
+}

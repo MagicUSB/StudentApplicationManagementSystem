@@ -1,0 +1,90 @@
+﻿@page "/applicationstatuses/edit"
+@using Microsoft.EntityFrameworkCore
+@using StudentApplicationManagementSystem.Models
+@inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>ApplicationStatus</h2>
+<hr />
+@if (ApplicationStatus is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="ApplicationStatus" OnValidSubmit="UpdateApplicationStatus" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary role="alert"/>
+                <input type="hidden" name="ApplicationStatus.ApplicationStatusId" value="@ApplicationStatus.ApplicationStatusId" />
+                <div class="mb-3">
+                <span class="text-danger">*</span>
+                    <label for="applicationstatusname" class="form-label">ApplicationStatusName:</label>
+                    <InputText id="applicationstatusname" @bind-Value="ApplicationStatus.ApplicationStatusName" class="form-control" aria-required="true"/>
+                    <ValidationMessage For="() => ApplicationStatus.ApplicationStatusName" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/applicationstatuses">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int ApplicationStatusId { get; set; }
+
+    [SupplyParameterFromForm]
+    private ApplicationStatus? ApplicationStatus { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        ApplicationStatus ??= await context.ApplicationStatus.FirstOrDefaultAsync(m => m.ApplicationStatusId == ApplicationStatusId);
+
+        if (ApplicationStatus is null)
+        {
+            NavigationManager.NotFound();
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateApplicationStatus()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Attach(ApplicationStatus!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!ApplicationStatusExists(ApplicationStatus!.ApplicationStatusId))
+            {
+                NavigationManager.NotFound();
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/applicationstatuses");
+    }
+
+    private bool ApplicationStatusExists(int applicationstatusid)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.ApplicationStatus.Any(e => e.ApplicationStatusId == applicationstatusid);
+    }
+}

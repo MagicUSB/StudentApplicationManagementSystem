@@ -1,0 +1,54 @@
+﻿@page "/specialties/details"
+@using Microsoft.EntityFrameworkCore
+@using StudentApplicationManagementSystem.Models
+@inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Specialty</h2>
+    <hr />
+    @if (specialty is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">SpecialtyName</dt>
+            <dd class="col-sm-10">@specialty.SpecialtyName</dd>
+            <dt class="col-sm-2">SpecialtyUniversityId</dt>
+            <dd class="col-sm-10">@specialty.SpecialtyUniversityId</dd>
+            <dt class="col-sm-2">SpecialtyDegreeId</dt>
+            <dd class="col-sm-10">@specialty.SpecialtyDegreeId</dd>
+            <dt class="col-sm-2">SpecialtyBudgetSpots</dt>
+            <dd class="col-sm-10">@specialty.SpecialtyBudgetSpots</dd>
+            <dt class="col-sm-2">SpecialtyTotalSpots</dt>
+            <dd class="col-sm-10">@specialty.SpecialtyTotalSpots</dd>
+        </dl>
+        <div>
+            <a href="@($"/specialties/edit?specialtyid={specialty.SpecialtyId}")">Edit</a> |
+            <a href="@($"/specialties")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Specialty? specialty;
+
+    [SupplyParameterFromQuery]
+    private int SpecialtyId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        specialty = await context.Specialty.FirstOrDefaultAsync(m => m.SpecialtyId == SpecialtyId);
+
+        if (specialty is null)
+        {
+            NavigationManager.NotFound();
+        }
+    }
+}

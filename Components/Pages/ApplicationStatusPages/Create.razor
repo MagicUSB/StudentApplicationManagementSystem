@@ -1,0 +1,47 @@
+﻿@page "/applicationstatuses/create"
+@using Microsoft.EntityFrameworkCore
+@using StudentApplicationManagementSystem.Models
+@inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>ApplicationStatus</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="ApplicationStatus" OnValidSubmit="AddApplicationStatus" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <span class="text-danger">*</span>
+                <label for="applicationstatusname" class="form-label">ApplicationStatusName:</label> 
+                <InputText id="applicationstatusname" @bind-Value="ApplicationStatus.ApplicationStatusName" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => ApplicationStatus.ApplicationStatusName" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/applicationstatuses">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private ApplicationStatus ApplicationStatus { get; set; } = default!;
+
+    protected override void OnInitialized() => ApplicationStatus ??= new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddApplicationStatus()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.ApplicationStatus.Add(ApplicationStatus);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/applicationstatuses");
+    }
+}

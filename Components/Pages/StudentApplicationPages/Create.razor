@@ -1,0 +1,110 @@
+﻿@page "/studentapplications/create"
+@using Microsoft.EntityFrameworkCore
+@using StudentApplicationManagementSystem.Models
+@inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>StudentApplication</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="StudentApplication" OnValidSubmit="AddStudentApplication" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <label for="studentid" class="form-label">StudentId:</label>
+                <InputSelect id="studentapplicationapplicant" @bind-Value="StudentApplication.StudentId">
+                    @foreach (var a in applicantList)
+                    {
+                        <option value="@a.ApplicantId">@(a.ApplicantSurname + " " + a.ApplicantName + " " + a.ApplicantPatronymic)</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="() => StudentApplication.StudentId" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="studentapplicationscore" class="form-label">StudentApplicationScore:</label> 
+                <InputNumber id="studentapplicationscore" @bind-Value="StudentApplication.StudentApplicationScore" class="form-control" /> 
+                <ValidationMessage For="() => StudentApplication.StudentApplicationScore" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="studentapplicationuniversityid" class="form-label">StudentApplicationUniversityId:</label>
+                <label for="specialtyuniversityid" class="form-label">Оберіть ЗВО:</label>
+                <InputSelect id="studentapplicationuniversity" @bind-Value="StudentApplication.StudentApplicationUniversityId" @bind-Value:after="() => AvailableSpecialtyList = AllSpecialtiesList.Where(s => s.SpecialtyUniversityId == StudentApplication.StudentApplicationUniversityId).ToList()">
+                    @foreach (var u in universityList)
+                    {
+                        <option value="@u.UniversityId">@u.UniversityName</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="() => StudentApplication.StudentApplicationUniversityId" class="text-danger" />
+            </div>   
+            <div class="mb-3">
+                <label for="studentapplicationspecialtyid" class="form-label">StudentApplicationSpecialtyId:</label>
+                <InputSelect id="studentapplicationspecialty" @bind-Value="StudentApplication.StudentApplicationSpecialtyId">
+                    <option>Оберіть спеціальність</option>
+                    @foreach (var s in AvailableSpecialtyList)
+                    {
+                        <option value="@s.SpecialtyId">@("[" + s.SpecialtyDegree.DegreeName + "] " + s.SpecialtyName)</option>
+                    }
+                    
+                </InputSelect>
+                <ValidationMessage For="() => StudentApplication.StudentApplicationSpecialtyId" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="studentapplicationfundingid" class="form-label">Тип фінансування:</label>
+                <InputSelect id="studentapplicationfundingtype" @bind-Value="StudentApplication.FundingTypeId">
+                    @foreach (var f in fundingTypes)
+                    {
+                        <option value="@f.FundingTypeId">@f.FundingTypeName</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="() => StudentApplication.FundingTypeId" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="studentapplicationpriority" class="form-label">StudentApplicationPriority:</label>
+                <InputNumber id="studentapplicationpriority" @bind-Value="StudentApplication.StudentApplicationPriority" class="form-control" />
+                <ValidationMessage For="() => StudentApplication.StudentApplicationPriority" class="text-danger" />
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/studentapplications">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private StudentApplication StudentApplication { get; set; } = default!;
+    private List<Applicant> applicantList;
+    private List<Degree> degreeList;
+    private List<University> universityList;
+    private List<FundingType> fundingTypes;
+    private List<Specialty> AllSpecialtiesList { get; set; }
+    private List<Specialty> AvailableSpecialtyList { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        StudentApplication ??= new();
+        using var context = DbFactory.CreateDbContext();
+        universityList = context.University.OrderBy(u => u.UniversityName).ToList();
+        degreeList = context.Degree.ToList();
+        applicantList = context.Applicant.OrderBy(a => a.ApplicantSurname).ToList();
+        AllSpecialtiesList = context.Specialty.ToList();
+        fundingTypes = context.FundingType.ToList();
+    }
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddStudentApplication()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.StudentApplication.Add(StudentApplication);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/studentapplications");
+    }
+}

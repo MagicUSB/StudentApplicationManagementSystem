@@ -1,0 +1,46 @@
+﻿@page "/universities/details"
+@using Microsoft.EntityFrameworkCore
+@using StudentApplicationManagementSystem.Models
+@inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>University</h2>
+    <hr />
+    @if (university is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Назва ЗВО</dt>
+            <dd class="col-sm-10">@university.UniversityName</dd>
+        </dl>
+        <div>
+            <a href="@($"/universities/edit?universityid={university.UniversityId}")">Edit</a> |
+            <a href="@($"/universities")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private University? university;
+
+    [SupplyParameterFromQuery]
+    private int UniversityId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        university = await context.University.FirstOrDefaultAsync(m => m.UniversityId == UniversityId);
+
+        if (university is null)
+        {
+            NavigationManager.NotFound();
+        }
+    }
+}

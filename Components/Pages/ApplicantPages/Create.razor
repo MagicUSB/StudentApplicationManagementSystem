@@ -1,0 +1,62 @@
+﻿@page "/applicants/create"
+@using Microsoft.EntityFrameworkCore
+@using StudentApplicationManagementSystem.Models
+@inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h2>Додати абітурієнта</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Applicant" OnValidSubmit="AddApplicant" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <span class="text-danger">*</span>
+                <label for="applicantsurname" class="form-label">Прізвище:</label> 
+                <InputText id="applicantsurname" @bind-Value="Applicant.ApplicantSurname" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => Applicant.ApplicantSurname" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <span class="text-danger">*</span>
+                <label for="applicantname" class="form-label">Ім'я:</label> 
+                <InputText id="applicantname" @bind-Value="Applicant.ApplicantName" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => Applicant.ApplicantName" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="applicantpatronymic" class="form-label">По батькові:</label> 
+                <InputText id="applicantpatronymic" @bind-Value="Applicant.ApplicantPatronymic" class="form-control" /> 
+                <ValidationMessage For="() => Applicant.ApplicantPatronymic" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <span class="text-danger">*</span>
+                <label for="applicanttelephone" class="form-label">Номер телефону:</label> 
+                <InputText id="applicanttelephone" @bind-Value="Applicant.ApplicantTelephone" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => Applicant.ApplicantTelephone" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/applicants">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Applicant Applicant { get; set; } = default!;
+
+    protected override void OnInitialized() => Applicant ??= new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddApplicant()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Applicant.Add(Applicant);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/applicants");
+    }
+}

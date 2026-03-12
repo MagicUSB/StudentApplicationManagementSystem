@@ -1,0 +1,56 @@
+﻿@page "/specialties"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using StudentApplicationManagementSystem.Models
+@using StudentApplicationManagementSystem.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Список спеціальностей</h1>
+
+<p>
+    <a href="specialties/create">Додати спеціальність</a>
+</p>
+
+<QuickGrid Class="table" Items="specialtyList">
+    <PropertyColumn Property="specialty => specialty.DegreeName" Title="Навчальний ступінь" Sortable="true" />
+    <PropertyColumn Property="specialty => specialty.SpecialtyName" Title="Спеціальність" Sortable="true" />
+    <PropertyColumn Property="specialty => specialty.UniversityName" Title="ЗВО" Sortable="true" />
+    <PropertyColumn Property="specialty => specialty.BudgetSpots" Title="Бюджетних місць" Sortable="true" />
+    <PropertyColumn Property="specialty => specialty.TotalSpots" Title="Всього місць" Sortable="true" />
+
+    <TemplateColumn Context="specialty">
+        <a href="@($"specialties/edit?specialtyid={specialty.SpecialtyId}")">Редагувати</a> |
+        <a href="@($"specialties/delete?specialtyid={specialty.SpecialtyId}")">Видалити</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private StudentApplicationManagementSystemContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+        specialtyList =
+                        from s in context.Specialty
+                        join u in context.University on s.SpecialtyUniversityId equals u.UniversityId
+                        join d in context.Degree on s.SpecialtyDegreeId equals d.DegreeId
+                        orderby u.UniversityName ascending
+                        select new Models.Joins.SpecialtyJoinsUniversity
+                        {
+                            SpecialtyId = s.SpecialtyId,
+                            SpecialtyName = s.SpecialtyName,
+                            UniversityName = u.UniversityName,
+                            BudgetSpots = s.SpecialtyBudgetSpots,
+                            TotalSpots = s.SpecialtyTotalSpots,
+                            DegreeName = d.DegreeName
+                        };
+
+    }
+    IQueryable<Models.Joins.SpecialtyJoinsUniversity> specialtyList;
+
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

@@ -1,0 +1,69 @@
+﻿@page "/studentapplications"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using StudentApplicationManagementSystem.Models
+@using StudentApplicationManagementSystem.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="studentapplications/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="applications">
+    <PropertyColumn Property="studentapplication => studentapplication.Surname" Title="Прізвище" Sortable="true"/>
+    <PropertyColumn Property="studentapplication => studentapplication.Name" Title="Ім'я"/>
+    <PropertyColumn Property="studentapplication => studentapplication.Patronymic" Title="По батькові"/>
+    <PropertyColumn Property="studentapplication => studentapplication.StatusName" Title="Статус заяви" Sortable="true" />
+    <PropertyColumn Property="studentapplication => studentapplication.Priority" Title="Пріоритет" Sortable="true" />
+    <PropertyColumn Property="studentapplication => studentapplication.UniversityName" Title="ЗВО" Sortable="true" />
+    <PropertyColumn Property="studentapplication => studentapplication.FundingTypeName" Title="Тип фінансування" Sortable="true" />
+    <PropertyColumn Property="studentapplication => studentapplication.SpecialtyName" Title="Спеціальність" Sortable="true" />
+    <PropertyColumn Property="studentapplication => studentapplication.Score" Title="Оцінка" Sortable="true" />
+
+    <TemplateColumn Context="studentapplication">
+        <a href="@($"studentapplications/edit?studentapplicationid={studentapplication.Id}")">Edit</a> |
+        <a href="@($"studentapplications/delete?studentapplicationid={studentapplication.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private StudentApplicationManagementSystemContext context = default!;
+    private IQueryable<Models.Joins.ApplicationJoinsStudentUniversitySpecialtyStatus> applications;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+        applications = from appl in context.StudentApplication
+                       join s in context.Applicant on appl.StudentId equals s.ApplicantId
+                       join u in context.University on appl.StudentApplicationUniversityId equals u.UniversityId
+                       join spec in context.Specialty on appl.StudentApplicationSpecialtyId equals spec.SpecialtyId
+                       join status in context.ApplicationStatus on appl.StudentApplicationStatusId equals status.ApplicationStatusId
+                       join f in context.FundingType on appl.FundingTypeId equals f.FundingTypeId
+                       orderby u.UniversityId ascending,
+                            spec.SpecialtyName ascending,
+                            spec.SpecialtyDegreeId ascending,
+                            f.FundingTypeName ascending,
+                            appl.StudentApplicationScore descending
+                       select new Models.Joins.ApplicationJoinsStudentUniversitySpecialtyStatus
+                           {
+                               Id = appl.StudentApplicationId,
+                               Surname = s.ApplicantSurname,
+                               Name = s.ApplicantName,
+                               Patronymic = s.ApplicantPatronymic,
+                               UniversityName = u.UniversityName,
+                               SpecialtyName = spec.SpecialtyName,
+                               StatusName = status.ApplicationStatusName,
+                               Score = appl.StudentApplicationScore, 
+                               Priority = appl.StudentApplicationPriority,
+                               FundingTypeName = f.FundingTypeName
+                           };
+
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

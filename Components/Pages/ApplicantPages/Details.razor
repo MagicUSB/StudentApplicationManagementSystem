@@ -1,0 +1,52 @@
+﻿@page "/applicants/details"
+@using Microsoft.EntityFrameworkCore
+@using StudentApplicationManagementSystem.Models
+@inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Applicant</h2>
+    <hr />
+    @if (applicant is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">ApplicantSurname</dt>
+            <dd class="col-sm-10">@applicant.ApplicantSurname</dd>
+            <dt class="col-sm-2">ApplicantName</dt>
+            <dd class="col-sm-10">@applicant.ApplicantName</dd>
+            <dt class="col-sm-2">ApplicantPatronymic</dt>
+            <dd class="col-sm-10">@applicant.ApplicantPatronymic</dd>
+            <dt class="col-sm-2">ApplicantTelephone</dt>
+            <dd class="col-sm-10">@applicant.ApplicantTelephone</dd>
+        </dl>
+        <div>
+            <a href="@($"/applicants/edit?applicantid={applicant.ApplicantId}")">Edit</a> |
+            <a href="@($"/applicants")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Applicant? applicant;
+
+    [SupplyParameterFromQuery]
+    private int ApplicantId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        applicant = await context.Applicant.FirstOrDefaultAsync(m => m.ApplicantId == ApplicantId);
+
+        if (applicant is null)
+        {
+            NavigationManager.NotFound();
+        }
+    }
+}

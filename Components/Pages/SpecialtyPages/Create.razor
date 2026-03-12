@@ -1,0 +1,82 @@
+﻿@page "/specialties/create"
+@using Microsoft.EntityFrameworkCore
+@using StudentApplicationManagementSystem.Models
+@inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Додання спеціальності</PageTitle>
+
+<h1>Додати</h1>
+
+<h2>Введіть дані про нову спеціальність</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="Specialty" OnValidSubmit="AddSpecialty" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <span class="text-danger">*</span>
+                <label for="specialtyname" class="form-label">Назва:</label> 
+                <InputText id="specialtyname" @bind-Value="Specialty.SpecialtyName" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => Specialty.SpecialtyName" class="text-danger" /> 
+            </div>        
+            <label for="specialtyuniversityid" class="form-label">Оберіть ЗВО:</label>
+            <InputSelect id="specialtyuniversity" @bind-Value="Specialty.SpecialtyUniversityId">
+                @foreach (var u in universityList)
+                {
+                    <option value="@u.UniversityId">@u.UniversityName</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="() => Specialty.SpecialtyUniversityId" class="text-danger" />
+            <label for="specialtyuniversityid" class="form-label">Навчальний ступінь:</label>
+            <InputSelect id="specialtydegree" @bind-Value="Specialty.SpecialtyDegreeId">
+                @foreach (var d in degreeList)
+                {
+                    <option value="@d.DegreeId">@d.DegreeName</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="() => Specialty.SpecialtyDegreeId" class="text-danger" />
+            <div class="mb-3">
+                <label for="specialtybudgetspots" class="form-label">Кількість бюджетних місць:</label> 
+                <InputNumber id="specialtybudgetspots" @bind-Value="Specialty.SpecialtyBudgetSpots" class="form-control" /> 
+                <ValidationMessage For="() => Specialty.SpecialtyBudgetSpots" class="text-danger" /> 
+            </div>        
+            <div class="mb-3">
+                <label for="specialtytotalspots" class="form-label">Всього місць:</label> 
+                <InputNumber id="specialtytotalspots" @bind-Value="Specialty.SpecialtyTotalSpots" class="form-control" /> 
+                <ValidationMessage For="() => Specialty.SpecialtyTotalSpots" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Додати</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/specialties">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Specialty Specialty { get; set; } = default!;
+    List<University>? universityList;
+    List<Degree>? degreeList;
+    protected override void OnInitialized()
+    {
+        Specialty ??= new();
+        using var context = DbFactory.CreateDbContext();
+        universityList = context.University.OrderBy(u => u.UniversityName).ToList();
+        degreeList = context.Degree.ToList();
+    }
+
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddSpecialty()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Specialty.Add(Specialty);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/specialties");
+    }
+}
+}

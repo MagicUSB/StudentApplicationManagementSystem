@@ -1,0 +1,36 @@
+﻿@page "/applicationstatuses"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using StudentApplicationManagementSystem.Models
+@using StudentApplicationManagementSystem.Data
+@implements IAsyncDisposable
+@inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="applicationstatuses/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="context.ApplicationStatus">
+    <PropertyColumn Property="applicationstatus => applicationstatus.ApplicationStatusName" />
+
+    <TemplateColumn Context="applicationstatus">
+        <a href="@($"applicationstatuses/edit?applicationstatusid={applicationstatus.ApplicationStatusId}")">Edit</a> |
+        <a href="@($"applicationstatuses/details?applicationstatusid={applicationstatus.ApplicationStatusId}")">Details</a> |
+        <a href="@($"applicationstatuses/delete?applicationstatusid={applicationstatus.ApplicationStatusId}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+@code {
+    private StudentApplicationManagementSystemContext context = default!;
+
+    protected override void OnInitialized()
+    {
+        context = DbFactory.CreateDbContext();
+    }
+
+    public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

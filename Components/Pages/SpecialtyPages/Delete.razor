@@ -1,0 +1,56 @@
+﻿@page "/specialties/delete"
+@using Microsoft.EntityFrameworkCore
+@using StudentApplicationManagementSystem.Models
+@inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Видалення</PageTitle>
+
+<h1>Видалення</h1>
+
+<p>Ви впевнені, що хочете видалити спеціальність?</p>
+<div>
+    <h2>Specialty</h2>
+    <hr />
+    @if (specialty is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">Назва</dt>
+            <dd class="col-sm-10">@specialty.SpecialtyName</dd>
+        </dl>
+        
+        <EditForm method="post" Model="specialty" OnValidSubmit="DeleteSpecialty" FormName="delete" Enhance>
+            <button type="submit" class="btn btn-danger" disabled="@(specialty is null)">Видалити</button> |
+            <a href="/specialties">Back to List</a>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private Specialty? specialty;
+
+    [SupplyParameterFromQuery]
+    private int SpecialtyId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        specialty = await context.Specialty.FirstOrDefaultAsync(m => m.SpecialtyId == SpecialtyId);
+
+        if (specialty is null)
+        {
+            NavigationManager.NotFound();
+        }
+    }
+
+    private async Task DeleteSpecialty()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Specialty.Remove(specialty!);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/specialties");
+    }
+}

@@ -1,0 +1,123 @@
+﻿@page "/specialties/edit"
+@using Microsoft.EntityFrameworkCore
+@using StudentApplicationManagementSystem.Models
+@inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h2>Specialty</h2>
+<hr />
+@if (Specialty is null)
+{
+    <p><em>Завантаження...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="Specialty" OnValidSubmit="UpdateSpecialty" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary class="text-danger" role="alert" />
+                <div class="mb-3">
+                    <span class="text-danger">*</span>
+                    <label for="specialtyname" class="form-label">Назва:</label>
+                    <InputText id="editspecialtyname" @bind-Value="Specialty.SpecialtyName" class="form-control" aria-required="true" />
+                    <ValidationMessage For="() => Specialty.SpecialtyName" class="text-danger" />
+                </div>
+                <label for="specialtyuniversityid" class="form-label">Оберіть ЗВО:</label>
+                <InputSelect id="editspecialtyuniversity" @bind-Value="Specialty.SpecialtyUniversityId">
+                    @foreach (var u in universityList)
+                    {
+                        <option value="@u.UniversityId">@u.UniversityName</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="() => Specialty.SpecialtyUniversityId" class="text-danger" />
+                <label for="editspecialtyuniversityid" class="form-label">Навчальний ступінь:</label>
+                <InputSelect id="specialtydegree" @bind-Value="Specialty.SpecialtyDegreeId">
+                    @foreach (var d in degreeList)
+                    {
+                        <option value="@d.DegreeId">@d.DegreeName</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="() => Specialty.SpecialtyDegreeId" class="text-danger" />
+                <div class="mb-3">
+                    <label for="specialtybudgetspots" class="form-label">Кількість бюджетних місць:</label>
+                    <InputNumber id="editspecialtybudgetspots" @bind-Value="Specialty.SpecialtyBudgetSpots" class="form-control" />
+                    <ValidationMessage For="() => Specialty.SpecialtyBudgetSpots" class="text-danger" />
+                </div>
+                <div class="mb-3">
+                    <label for="editspecialtytotalspots" class="form-label">Всього місць:</label>
+                    <InputNumber id="specialtytotalspots" @bind-Value="Specialty.SpecialtyTotalSpots" class="form-control" />
+                    <ValidationMessage For="() => Specialty.SpecialtyTotalSpots" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/specialties">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    private int SpecialtyId { get; set; }
+
+    [SupplyParameterFromForm]
+    private Specialty? Specialty { get; set; }
+
+    List<University>? universityList;
+    List<Degree>? degreeList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        universityList = context.University.ToList();
+        degreeList = context.Degree.ToList();
+
+        Specialty ??= await context.Specialty.FirstOrDefaultAsync(m => m.SpecialtyId == SpecialtyId);
+
+        if (Specialty is null)
+        {
+            NavigationManager.NotFound();
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more information, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task UpdateSpecialty()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Entry(Specialty!).Property(s => s.SpecialtyUniversityId).IsModified = true;
+        context.Entry(Specialty!).Property(s => s.SpecialtyDegreeId).IsModified = true;
+        context.Attach(Specialty!).State = EntityState.Modified;
+
+        try
+        {
+            await context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!SpecialtyExists(Specialty!.SpecialtyId))
+            {
+                NavigationManager.NotFound();
+            }
+            else
+            {
+                throw;
+            }
+        }
+
+        NavigationManager.NavigateTo("/specialties");
+    }
+
+    private bool SpecialtyExists(int specialtyid)
+    {
+        using var context = DbFactory.CreateDbContext();
+        return context.Specialty.Any(e => e.SpecialtyId == specialtyid);
+    }
+}

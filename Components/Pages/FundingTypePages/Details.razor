@@ -1,0 +1,46 @@
+﻿@page "/fundingtypes/details"
+@using Microsoft.EntityFrameworkCore
+@using StudentApplicationManagementSystem.Models
+@inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>FundingType</h2>
+    <hr />
+    @if (fundingtype is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">FundingTypeName</dt>
+            <dd class="col-sm-10">@fundingtype.FundingTypeName</dd>
+        </dl>
+        <div>
+            <a href="@($"/fundingtypes/edit?fundingtypeid={fundingtype.FundingTypeId}")">Edit</a> |
+            <a href="@($"/fundingtypes")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private FundingType? fundingtype;
+
+    [SupplyParameterFromQuery]
+    private int FundingTypeId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        fundingtype = await context.FundingType.FirstOrDefaultAsync(m => m.FundingTypeId == FundingTypeId);
+
+        if (fundingtype is null)
+        {
+            NavigationManager.NotFound();
+        }
+    }
+}

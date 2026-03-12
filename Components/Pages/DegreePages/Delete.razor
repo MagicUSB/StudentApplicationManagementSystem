@@ -1,0 +1,55 @@
+﻿@page "/degrees/delete"
+@using Microsoft.EntityFrameworkCore
+@using StudentApplicationManagementSystem.Models
+@inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Delete</PageTitle>
+
+<h1>Delete</h1>
+
+<p>Are you sure you want to delete this?</p>
+<div>
+    <h2>Degree</h2>
+    <hr />
+    @if (degree is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">DegreeName</dt>
+            <dd class="col-sm-10">@degree.DegreeName</dd>
+        </dl>
+        <EditForm method="post" Model="degree" OnValidSubmit="DeleteDegree" FormName="delete" Enhance>
+            <button type="submit" class="btn btn-danger" disabled="@(degree is null)">Delete</button> |
+            <a href="/degrees">Back to List</a>
+        </EditForm>
+    }
+</div>
+
+@code {
+    private Degree? degree;
+
+    [SupplyParameterFromQuery]
+    private int DegreeId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        degree = await context.Degree.FirstOrDefaultAsync(m => m.DegreeId == DegreeId);
+
+        if (degree is null)
+        {
+            NavigationManager.NotFound();
+        }
+    }
+
+    private async Task DeleteDegree()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.Degree.Remove(degree!);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/degrees");
+    }
+}

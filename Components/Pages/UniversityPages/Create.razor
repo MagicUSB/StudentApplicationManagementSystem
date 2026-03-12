@@ -1,0 +1,47 @@
+﻿@page "/universities/create"
+@using Microsoft.EntityFrameworkCore
+@using StudentApplicationManagementSystem.Models
+@inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>University</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="University" OnValidSubmit="AddUniversity" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert"/>
+            <div class="mb-3">
+                <span class="text-danger">*</span>
+                <label for="universityname" class="form-label">UniversityName:</label> 
+                <InputText id="universityname" @bind-Value="University.UniversityName" class="form-control" aria-required="true"/> 
+                <ValidationMessage For="() => University.UniversityName" class="text-danger" /> 
+            </div>        
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/universities">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private University University { get; set; } = default!;
+
+    protected override void OnInitialized() => University ??= new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddUniversity()
+    {
+        using var context = DbFactory.CreateDbContext();
+        context.University.Add(University);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/universities");
+    }
+}
