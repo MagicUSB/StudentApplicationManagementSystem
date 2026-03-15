@@ -23,36 +23,17 @@ else
                 <ValidationSummary role="alert"/>
                 <input type="hidden" name="StudentApplication.StudentApplicationId" value="@StudentApplication.StudentApplicationId" />
                 <div class="mb-3">
-                    <label for="studentid" class="form-label">StudentId:</label>
-                    <InputNumber id="studentid" @bind-Value="StudentApplication.StudentId" class="form-control" />
-                    <ValidationMessage For="() => StudentApplication.StudentId" class="text-danger" />
-                </div>
-                <div class="mb-3">
-                    <label for="studentapplicationscore" class="form-label">StudentApplicationScore:</label>
-                    <InputNumber id="studentapplicationscore" @bind-Value="StudentApplication.StudentApplicationScore" class="form-control" />
-                    <ValidationMessage For="() => StudentApplication.StudentApplicationScore" class="text-danger" />
-                </div>
-                <div class="mb-3">
-                    <label for="studentapplicationuniversityid" class="form-label">StudentApplicationUniversityId:</label>
-                    <InputNumber id="studentapplicationuniversityid" @bind-Value="StudentApplication.StudentApplicationUniversityId" class="form-control" />
-                    <ValidationMessage For="() => StudentApplication.StudentApplicationUniversityId" class="text-danger" />
-                </div>
-                <div class="mb-3">
-                    <label for="studentapplicationstatusid" class="form-label">StudentApplicationStatusId:</label>
-                    <InputNumber id="studentapplicationstatusid" @bind-Value="StudentApplication.StudentApplicationStatusId" class="form-control" />
+                    <label for="studentapplicationstatusid" class="form-label">Оберіть статус заяви:</label>
+                    <InputSelect id="studentapplicationstatusid" @bind-Value="StudentApplication.StudentApplicationStatusId">
+                        <option>Оберіть статус заяви</option>
+                        @foreach (var s in applicationStatuses)
+                        {
+                            <option value="@s.ApplicationStatusId">@s.ApplicationStatusName</option>
+                        }
+                    </InputSelect>
                     <ValidationMessage For="() => StudentApplication.StudentApplicationStatusId" class="text-danger" />
                 </div>
-                <div class="mb-3">
-                    <label for="studentapplicationpriority" class="form-label">StudentApplicationPriority:</label>
-                    <InputNumber id="studentapplicationpriority" @bind-Value="StudentApplication.StudentApplicationPriority" class="form-control" />
-                    <ValidationMessage For="() => StudentApplication.StudentApplicationPriority" class="text-danger" />
-                </div>
-                <div class="mb-3">
-                    <label for="studentapplicationspecialtyid" class="form-label">StudentApplicationSpecialtyId:</label>
-                    <InputNumber id="studentapplicationspecialtyid" @bind-Value="StudentApplication.StudentApplicationSpecialtyId" class="form-control" />
-                    <ValidationMessage For="() => StudentApplication.StudentApplicationSpecialtyId" class="text-danger" />
-                </div>
-                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="submit" class="btn btn-primary">Зберегти</button>
             </EditForm>
         </div>
     </div>
@@ -69,6 +50,8 @@ else
     [SupplyParameterFromForm]
     private StudentApplication? StudentApplication { get; set; }
 
+    private List<ApplicationStatus> applicationStatuses;
+
     protected override async Task OnInitializedAsync()
     {
         using var context = DbFactory.CreateDbContext();
@@ -78,6 +61,7 @@ else
         {
             NavigationManager.NotFound();
         }
+        applicationStatuses = context.ApplicationStatus.ToList();
     }
 
     // To protect from overposting attacks, enable the specific properties you want to bind to.

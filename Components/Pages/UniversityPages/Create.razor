@@ -4,11 +4,9 @@
 @inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
 @inject NavigationManager NavigationManager
 
-<PageTitle>Create</PageTitle>
+<PageTitle>Додати новий заклад вищої освіти</PageTitle>
 
-<h1>Create</h1>
-
-<h2>University</h2>
+<h1>Додати новий заклад вищої освіти</h1>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -17,17 +15,17 @@
             <ValidationSummary class="text-danger" role="alert"/>
             <div class="mb-3">
                 <span class="text-danger">*</span>
-                <label for="universityname" class="form-label">UniversityName:</label> 
+                <label for="universityname" class="form-label">Назва ЗВО:</label> 
                 <InputText id="universityname" @bind-Value="University.UniversityName" class="form-control" aria-required="true"/> 
                 <ValidationMessage For="() => University.UniversityName" class="text-danger" /> 
             </div>        
-            <button type="submit" class="btn btn-primary">Create</button>
+            <button type="submit" class="btn btn-primary">Додати</button>
         </EditForm>
     </div>
 </div>
 
 <div>
-    <a href="/universities">Back to List</a>
+    <a href="/universities">Повернутися до списку</a>
 </div>
 
 @code {

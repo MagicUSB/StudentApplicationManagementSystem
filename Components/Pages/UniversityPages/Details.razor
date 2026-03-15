@@ -1,4 +1,5 @@
 ﻿@page "/universities/details"
+@using Microsoft.AspNetCore.Components.QuickGrid
 @using Microsoft.EntityFrameworkCore
 @using StudentApplicationManagementSystem.Models
 @inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
@@ -6,7 +7,7 @@
 
 <PageTitle>Details</PageTitle>
 
-<h1>Details</h1>
+<h1>Деталі</h1>
 
 <div>
     <h2>University</h2>
@@ -15,16 +16,30 @@
     {
         <p><em>Loading...</em></p>
     }
-    else {
+    else
+    {
         <dl class="row">
             <dt class="col-sm-2">Назва ЗВО</dt>
             <dd class="col-sm-10">@university.UniversityName</dd>
         </dl>
+        <QuickGrid Class="table" Items="university.Specialties.AsQueryable()">
+            <PropertyColumn Property="specialty => specialty.SpecialtyDegree.DegreeName" Title="Навчальний ступінь" Sortable="true" />
+            <PropertyColumn Property="specialty => specialty.SpecialtyName" Title="Спеціальність" Sortable="true" />
+            <PropertyColumn Property="specialty => specialty.SpecialtyUniversity.UniversityName" Title="ЗВО" Sortable="true" />
+            <PropertyColumn Property="specialty => specialty.SpecialtyBudgetSpots" Title="Бюджетних місць" Sortable="true" />
+            <PropertyColumn Property="specialty => specialty.SpecialtyTotalSpots" Title="Всього місць" Sortable="true" />
+
+            <TemplateColumn Context="specialty">
+                <a href="@($"specialties/edit?specialtyid={specialty.SpecialtyId}")">Редагувати</a> |
+                <a href="@($"specialties/delete?specialtyid={specialty.SpecialtyId}")">Видалити</a>
+            </TemplateColumn>
+        </QuickGrid>
         <div>
-            <a href="@($"/universities/edit?universityid={university.UniversityId}")">Edit</a> |
-            <a href="@($"/universities")">Back to List</a>
+            <a href="@($"/universities/edit?universityid={university.UniversityId}")">Редагувати</a> |
+            <a href="@($"/universities")">Повернутися до списку</a>
         </div>
     }
+    
 </div>
 
 @code {
@@ -33,11 +48,14 @@
     [SupplyParameterFromQuery]
     private int UniversityId { get; set; }
 
+
     protected override async Task OnInitializedAsync()
     {
         using var context = DbFactory.CreateDbContext();
-        university = await context.University.FirstOrDefaultAsync(m => m.UniversityId == UniversityId);
-
+        university = await context.University.Include(u => u.Specialties)
+                                .ThenInclude(s => s.SpecialtyDegree)
+                                .FirstOrDefaultAsync(m => m.UniversityId == UniversityId);
+        
         if (university is null)
         {
             NavigationManager.NotFound();

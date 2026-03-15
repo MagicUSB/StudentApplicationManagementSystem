@@ -15,7 +15,7 @@
 </p>
 
 <QuickGrid Class="table" Items="context.University">
-    <PropertyColumn Property="university => university.UniversityName" />
+    <PropertyColumn Property="university => university.UniversityName" Title="Назва ЗВО" Sortable="true" />
 
     <TemplateColumn Context="university">
         <a href="@($"universities/edit?universityid={university.UniversityId}")">Редагувати</a> |

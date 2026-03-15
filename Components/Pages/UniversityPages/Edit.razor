@@ -6,13 +6,12 @@
 
 <PageTitle>Edit</PageTitle>
 
-<h1>Edit</h1>
+<h1>Редагувати інформацію про ЗВО</h1>
 
-<h2>University</h2>
 <hr />
 @if (University is null)
 {
-    <p><em>Loading...</em></p>
+    <p><em>Завантаження...</em></p>
 }
 else
 {
@@ -24,18 +23,18 @@ else
                 <input type="hidden" name="University.UniversityId" value="@University.UniversityId" />
                 <div class="mb-3">
                 <span class="text-danger">*</span>
-                    <label for="universityname" class="form-label">UniversityName:</label>
+                    <label for="universityname" class="form-label">Назва ЗВО:</label>
                     <InputText id="universityname" @bind-Value="University.UniversityName" class="form-control" aria-required="true"/>
                     <ValidationMessage For="() => University.UniversityName" class="text-danger" />
                 </div>
-                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="submit" class="btn btn-primary">Зберегти</button>
             </EditForm>
         </div>
     </div>
 }
 
 <div>
-    <a href="/universities">Back to List</a>
+    <a href="/universities">Повернутися до списку</a>
 </div>
 
 @code {

@@ -4,11 +4,10 @@
 @inject IDbContextFactory<StudentApplicationManagementSystem.Data.StudentApplicationManagementSystemContext> DbFactory
 @inject NavigationManager NavigationManager
 
-<PageTitle>Edit</PageTitle>
+<PageTitle>Редагувати інформацію про спеціальність</PageTitle>
 
-<h1>Edit</h1>
+<h1>Редагувати інформацію про спеціальність</h1>
 
-<h2>Specialty</h2>
 <hr />
 @if (Specialty is null)
 {
@@ -53,14 +52,14 @@ else
                     <InputNumber id="specialtytotalspots" @bind-Value="Specialty.SpecialtyTotalSpots" class="form-control" />
                     <ValidationMessage For="() => Specialty.SpecialtyTotalSpots" class="text-danger" />
                 </div>
-                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="submit" class="btn btn-primary">Зберегти</button>
             </EditForm>
         </div>
     </div>
 }
 
 <div>
-    <a href="/specialties">Back to List</a>
+    <a href="/specialties">Повернутися до списку</a>
 </div>
 
 @code {
