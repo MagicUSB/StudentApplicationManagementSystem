@@ -16,7 +16,7 @@
             <DataAnnotationsValidator />
             <ValidationSummary class="text-danger" role="alert"/>
             <div class="mb-3">
-                <label for="studentid" class="form-label">StudentId:</label>
+                <label for="studentid" class="form-label">Оберіть абітурієнта або <a href="/applicants/create">додайте нового</a>:</label>
                 <InputSelect id="studentapplicationapplicant" @bind-Value="StudentApplication.StudentId">
                     @foreach (var a in applicantList)
                     {
@@ -26,12 +26,11 @@
                 <ValidationMessage For="() => StudentApplication.StudentId" class="text-danger" />
             </div>
             <div class="mb-3">
-                <label for="studentapplicationscore" class="form-label">StudentApplicationScore:</label> 
+                <label for="studentapplicationscore" class="form-label">Введіть оцінку:</label> 
                 <InputNumber id="studentapplicationscore" @bind-Value="StudentApplication.StudentApplicationScore" class="form-control" /> 
                 <ValidationMessage For="() => StudentApplication.StudentApplicationScore" class="text-danger" /> 
             </div>        
             <div class="mb-3">
-                <label for="studentapplicationuniversityid" class="form-label">StudentApplicationUniversityId:</label>
                 <label for="specialtyuniversityid" class="form-label">Оберіть ЗВО:</label>
                 <InputSelect id="studentapplicationuniversity" @bind-Value="StudentApplication.StudentApplicationUniversityId" @bind-Value:after="() => AvailableSpecialtyList = AllSpecialtiesList.Where(s => s.SpecialtyUniversityId == StudentApplication.StudentApplicationUniversityId).ToList()">
                     @foreach (var u in universityList)
@@ -64,18 +63,18 @@
                 <ValidationMessage For="() => StudentApplication.FundingTypeId" class="text-danger" />
             </div>
             <div class="mb-3">
-                <label for="studentapplicationpriority" class="form-label">StudentApplicationPriority:</label>
+                <label for="studentapplicationpriority" class="form-label">Введіть пріоритет заяви (від 1 до 15):</label>
                 <InputNumber id="studentapplicationpriority" @bind-Value="StudentApplication.StudentApplicationPriority" class="form-control" />
                 <ValidationMessage For="() => StudentApplication.StudentApplicationPriority" class="text-danger" />
             </div>
             
-            <button type="submit" class="btn btn-primary">Create</button>
+            <button type="submit" class="btn btn-primary">Додати</button>
         </EditForm>
     </div>
 </div>
 
 <div>
-    <a href="/studentapplications">Back to List</a>
+    <a href="/studentapplications">Повернутися до списку</a>
 </div>
 
 @code {

@@ -8,10 +8,10 @@
 
 <PageTitle>Index</PageTitle>
 
-<h1>Index</h1>
+<h1>Список заяв на вступ</h1>
 
 <p>
-    <a href="studentapplications/create">Create New</a>
+    <a href="studentapplications/create">Додати заяву на вступ</a>
 </p>
 
 <QuickGrid Class="table" Items="applications">
@@ -26,8 +26,8 @@
     <PropertyColumn Property="studentapplication => studentapplication.Score" Title="Оцінка" Sortable="true" />
 
     <TemplateColumn Context="studentapplication">
-        <a href="@($"studentapplications/edit?studentapplicationid={studentapplication.Id}")">Edit</a> |
-        <a href="@($"studentapplications/delete?studentapplicationid={studentapplication.Id}")">Delete</a>
+        <a href="@($"studentapplications/edit?studentapplicationid={studentapplication.Id}")">Редагувати</a> |
+        <a href="@($"studentapplications/delete?studentapplicationid={studentapplication.Id}")">Видалити</a>
     </TemplateColumn>
 </QuickGrid>
 
