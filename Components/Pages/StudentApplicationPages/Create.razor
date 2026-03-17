@@ -6,9 +6,8 @@
 
 <PageTitle>Create</PageTitle>
 
-<h1>Create</h1>
+<h1>Подати заяву на вступ</h1>
 
-<h2>StudentApplication</h2>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -41,7 +40,7 @@
                 <ValidationMessage For="() => StudentApplication.StudentApplicationUniversityId" class="text-danger" />
             </div>   
             <div class="mb-3">
-                <label for="studentapplicationspecialtyid" class="form-label">StudentApplicationSpecialtyId:</label>
+                <label for="studentapplicationspecialtyid" class="form-label">Оберіть спеціальність:</label>
                 <InputSelect id="studentapplicationspecialty" @bind-Value="StudentApplication.StudentApplicationSpecialtyId">
                     <option>Оберіть спеціальність</option>
                     @foreach (var s in AvailableSpecialtyList)
